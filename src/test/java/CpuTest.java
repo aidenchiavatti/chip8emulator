@@ -39,7 +39,7 @@ public class CpuTest {
     @Test
     public void testCallSubroutine() {
         cpu.executeOpcode(0x2240);
-        assertEquals(0x040, cpu.getCurrentAddress());
+        assertEquals(0x240, cpu.getCurrentAddress());
     }
 
     @Test
@@ -179,14 +179,14 @@ public class CpuTest {
     @Test
     public void testDraw() {
         cpu.executeOpcode(0x6a01); //init Va with 1
-        cpu.executeOpcode(0x6b01); //init Vb with 1
-        cpu.executeOpcode(0xa200); //init I with address 0x000
+        cpu.executeOpcode(0x6b00); //init Vb with 0
+        cpu.executeOpcode(0xa200); //init I with address 0x200
 
         //mocks memory starting at I
-        when(memory.read(0)).thenReturn((short)0x80); //1000 0000
-        when(memory.read(1)).thenReturn((short)0x01); //0000 0001
-        when(memory.read(2)).thenReturn((short)0x84); //1000 1000
-        when(memory.read(3)).thenReturn((short)0xFF); //1111 1111
+        when(memory.read(0x200)).thenReturn((short)0x80); //1000 0000
+        when(memory.read(0x201)).thenReturn((short)0x01); //0000 0001
+        when(memory.read(0x202)).thenReturn((short)0x84); //1000 1000
+        when(memory.read(0x203)).thenReturn((short)0xFF); //1111 1111
 
         cpu.executeOpcode(0xdab4); //draw 8x4 sprite at 1,1
         verify(screen, times(1)).drawRow(0, 0, (short)0x80);
@@ -195,7 +195,7 @@ public class CpuTest {
         verify(screen, times(1)).drawRow(0, 3, (short)0xFF);
         assertEquals(0, cpu.getV(0xf));
 
-        when(memory.read(0)).thenReturn((short)0x0); //0000 0000
+        when(memory.read(0x200)).thenReturn((short)0x0); //0000 0000
         when(screen.drawRow(0, 0, (short)0x0)).thenReturn(true);
         cpu.executeOpcode(0xdab1); //draw 8x1 sprite at 1,1
         verify(screen, times(1)).drawRow(0, 0, (short)0x0);
@@ -204,10 +204,10 @@ public class CpuTest {
 
     @Test
     public void testMainLoop() {
-        when(memory.read(0)).thenReturn((short)0x6A);
-        when(memory.read(1)).thenReturn((short)0x02);
-        when(memory.read(2)).thenReturn((short)0x6B);
-        when(memory.read(3)).thenReturn((short)0x0C);
+        when(memory.read(0x200)).thenReturn((short)0x6A);
+        when(memory.read(0x201)).thenReturn((short)0x02);
+        when(memory.read(0x202)).thenReturn((short)0x6B);
+        when(memory.read(0x203)).thenReturn((short)0x0C);
         cpu.mainLoop();
         assertEquals(0x02, cpu.getV(0xa));
         assertEquals(0x0c, cpu.getV(0xb));
@@ -221,6 +221,26 @@ public class CpuTest {
         verify(memory, times(1)).write(cpu.getI(), 1);
         verify(memory, times(1)).write(cpu.getI() + 1, 2);
         verify(memory, times(1)).write(cpu.getI() + 2, 8);
+    }
 
+    @Test
+    public void testRegLoad() {
+        cpu.executeOpcode(0xA300); //init I = 300
+        when(memory.read(0x300)).thenReturn((short)2);
+        when(memory.read(0x301)).thenReturn((short)4);
+        when(memory.read(0x302)).thenReturn((short)6);
+
+        cpu.executeOpcode(0xf265);
+        assertEquals(2, cpu.getV(0));
+        assertEquals(4, cpu.getV(1));
+        assertEquals(6, cpu.getV(2));
+    }
+
+    @Test
+    public void testSetSpriteAddr() {
+        cpu.executeOpcode(0xf029);
+        assertEquals(0, cpu.getI());
+
+        //TODO: add more testing here
     }
 }

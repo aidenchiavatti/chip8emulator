@@ -9,6 +9,7 @@ public class Cpu {
     private short[] v; //8-bit registers, (V0 -> VF)
     private int i; //16-bit I register
     private int currentAddress;
+    private int returnAddress;
 
     public Cpu(Screen screen, Memory memory) {
         this.screen = screen;
@@ -28,12 +29,16 @@ public class Cpu {
         int opcodeFirstDigit = (opcode & 0xF000) >> 12;
         switch(opcodeFirstDigit) {
             case 0x0:
-                if(opcode == 0x00E0) {screen.clear();}    //00E0
-                else {
-                    unknownOpcode(opcode);
+                switch(opcode & 0xFF) {
+                    case 0xE0:                                   //00E0
+                        screen.clear(); break;
+                    case 0xEE:                                   //00EE
+                        currentAddress = returnAddress; break;
+                    default: unknownOpcode(opcode);
                 } break;
-            case 0x2:                                     //2NNN
-                currentAddress = opcode & 0xFFF - 0x200; break;
+            case 0x2:                                            //2NNN
+                returnAddress = currentAddress;
+                currentAddress = opcode & 0xFFF; break;
             case 0x6: //6XNN
                 x = (opcode & 0xF00) >> 8;
                 v[x] = (short)(opcode & 0xFF);
@@ -89,12 +94,14 @@ public class Cpu {
                 y = (opcode & 0x0F0) >> 4;
                 n = opcode & 0xF;
                 for(int row = 0; row < n; row++) {
-                    boolean pixelWasTurnedOff = screen.drawRow(v[x] - 1, v[y] + row - 1, memory.read(i + row - 0x200));
+                    boolean pixelWasTurnedOff = screen.drawRow(v[x] - 1, v[y] + row, memory.read(i + row ));
                     v[0xf] = pixelWasTurnedOff ? (short)1 : (short)0;
                 } break;
             case 0xf:
                 x = (opcode & 0xF00) >> 8;
                 switch (opcode & 0xff) {
+                    case 0x29:
+                        i = v[x]; break;
                     case 0x33:                                   //FX33
                         short value = v[x];
                         memory.write(i + 2, value % 10);
@@ -103,6 +110,10 @@ public class Cpu {
                         value /= 10;
                         memory.write(i, value);
                         break;
+                    case 0x65:
+                        for(int index = 0; index <= x; index++) {
+                            v[index] = memory.read(i + index);
+                        } break;
                     default: unknownOpcode(opcode);
                 } break;
             default: unknownOpcode(opcode);
@@ -131,7 +142,7 @@ public class Cpu {
      * Ends when opcode of 0 is reached TODO: check this
      */
     public void mainLoop() {
-        currentAddress = 0;
+        currentAddress = 0x200;
         int opcode = memory.read(currentAddress++) << 8;
         opcode += memory.read(currentAddress++);
         while(opcode != 0)  {

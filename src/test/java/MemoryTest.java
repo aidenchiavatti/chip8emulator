@@ -15,8 +15,8 @@ public class MemoryTest {
 
     @Test
     public void testReadAndWrite() {
-        memory.write(0, 99);
-        assertEquals(99, memory.read(0));
+        memory.write(0x200, 99);
+        assertEquals(99, memory.read(0x200));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -29,11 +29,16 @@ public class MemoryTest {
         memory.write(-1, 99);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testWriteToReservedSpace() {
+        memory.write(0x0, 1);
+    }
+
     @Test
     public void testLoadInputStreamToMemory() throws IOException {
         InputStream inputStream = new FileInputStream("PONG");
         memory.loadInputStream(inputStream);
-        assertEquals(0x6a, memory.read(0));
-        assertEquals(0x80, memory.read(0xF0));
+        assertEquals(0x6a, memory.read(0x200));
+        assertEquals(0x80, memory.read(0x2F0));
     }
 }

@@ -15,30 +15,32 @@ public class Memory {
 
     public Memory() {
         this.memory = new short[MAX_SIZE];
+        initSprites();
     }
 
     /**
-     * write 8 bits to memory offset
-     * @param pos memory offset. 0 -> MAX_SIZE
+     * write 8 bits to memory address
+     * @param pos memory address. 0 -> MAX_SIZE
      * @param value 8 bit value to write
      */
-    public void write(int pos, int value) { //TODO: might need to remove offset and write to absolute address
+    public void write(int pos, int value) {
         if(pos >= MAX_SIZE) {
             throw new IllegalArgumentException("Cannot write to address larger than max memory size");
-        }
-        if(pos < 0) {
+        } else if(pos < 0) {
             throw new IllegalArgumentException("Cannot write to negative address");
+        } else if(pos < 0x200) {
+            throw new IllegalArgumentException("Cannot write to reserved address (0 -> 0x200)");
         }
-        memory[pos + BASE_ADDR] = (short)(value & 0xFF);
+        memory[pos] = (short)(value & 0xFF);
     }
 
     /**
-     * read 8 bits from memory offset
-     * @param pos memory offset. 0 -> MAX_SIZE
+     * read 8 bits from memory address
+     * @param pos memory address. 0 -> MAX_SIZE
      * @return 8 bit value read
      */
     public short read(int pos) {
-        return memory[pos + BASE_ADDR];
+        return memory[pos];
     }
 
     /**
@@ -48,10 +50,19 @@ public class Memory {
      */
     public void loadInputStream(InputStream inputStream) throws IOException {
         byte[] bytes = IOUtils.toByteArray(inputStream);
-        int offset = 0;
+        int address = 0x200;
         for(byte b: bytes) {
-            write(offset, b);
-            offset++;
+            write(address, b);
+            address++;
         }
+    }
+
+    private void initSprites() {
+        //init 0
+        memory[0] = 0x60;
+        memory[1] = 0x90;
+        memory[2] = 0x90;
+        memory[3] = 0x90;
+        memory[4] = 0x60;
     }
 }
