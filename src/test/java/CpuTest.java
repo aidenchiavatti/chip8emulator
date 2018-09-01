@@ -37,9 +37,28 @@ public class CpuTest {
     }
 
     @Test
+    public void testGoto() {
+        cpu.executeOpcode(0x12E0);
+        assertEquals(0x2E0, cpu.getCurrentAddress());
+    }
+
+    @Test
     public void testCallSubroutine() {
         cpu.executeOpcode(0x2240);
         assertEquals(0x240, cpu.getCurrentAddress());
+    }
+
+    @Test
+    public void testSkipIfEqual() {
+        cpu.executeOpcode(0x6010); //init V0 with 0x10
+
+        int currentAddress = cpu.getCurrentAddress();
+        cpu.executeOpcode(0x3010); //test equal
+        assertEquals(currentAddress + 2, cpu.getCurrentAddress());
+
+        currentAddress = cpu.getCurrentAddress();
+        cpu.executeOpcode(0x3011); //test not equal
+        assertEquals(currentAddress, cpu.getCurrentAddress());
     }
 
     @Test
@@ -242,5 +261,22 @@ public class CpuTest {
         assertEquals(0, cpu.getI());
 
         //TODO: add more testing here
+    }
+
+    @Test
+    public void testSetDelayTimer() {
+        cpu.executeOpcode(0x6010); //init V0 with 0x10
+
+        cpu.executeOpcode(0xf015); //set delay timer to value of V0
+        assertEquals(0x10, cpu.getDelayTimer());
+    }
+
+    @Test
+    public void readDelayTimer() {
+        cpu.executeOpcode(0x6010); //init V0 with 0x10
+        cpu.executeOpcode(0xf015); //set delay timer to value of V0
+
+        cpu.executeOpcode(0xf107);
+        assertEquals(0x10, cpu.getV(0));
     }
 }

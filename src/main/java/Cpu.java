@@ -10,6 +10,7 @@ public class Cpu {
     private int i; //16-bit I register
     private int currentAddress;
     private int returnAddress;
+    private int delayTimer;
 
     public Cpu(Screen screen, Memory memory) {
         this.screen = screen;
@@ -36,9 +37,16 @@ public class Cpu {
                         currentAddress = returnAddress; break;
                     default: unknownOpcode(opcode);
                 } break;
+            case 0x1:                                            //1NNN
+                n = (short)(opcode & 0xFFF);
+                currentAddress = n; break;
             case 0x2:                                            //2NNN
                 returnAddress = currentAddress;
                 currentAddress = opcode & 0xFFF; break;
+            case 0x3:                                            //3XNN
+                x = (opcode & 0xF00) >> 8;
+                n = (short)(opcode & 0xFF);
+                currentAddress = v[x] == n ? currentAddress + 2 : currentAddress; break;
             case 0x6: //6XNN
                 x = (opcode & 0xF00) >> 8;
                 v[x] = (short)(opcode & 0xFF);
@@ -100,6 +108,10 @@ public class Cpu {
             case 0xf:
                 x = (opcode & 0xF00) >> 8;
                 switch (opcode & 0xff) {
+                    case 0x07:
+                        v[x] = (short) delayTimer;                       //FX07
+                    case 0x15:                                   //FX15
+                        delayTimer = v[x]; break;
                     case 0x29:
                         i = v[x]; break;
                     case 0x33:                                   //FX33
@@ -148,10 +160,14 @@ public class Cpu {
         while(opcode != 0)  {
             System.out.println(String.format("0x%04X", opcode));
             this.executeOpcode(opcode);
-            screen.print();
+            //screen.print();
             opcode = memory.read(currentAddress++) << 8;
             opcode += memory.read(currentAddress++);
         }
+    }
+
+    public int getDelayTimer() {
+        return delayTimer;
     }
 
     private void unknownOpcode(int opcode) {

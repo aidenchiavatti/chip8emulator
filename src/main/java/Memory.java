@@ -64,5 +64,7 @@ public class Memory {
         memory[2] = 0x90;
         memory[3] = 0x90;
         memory[4] = 0x60;
+
+        //TODO: add more sprites
     }
 }
