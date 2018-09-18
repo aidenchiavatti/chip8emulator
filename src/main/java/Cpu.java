@@ -16,6 +16,7 @@ public class Cpu {
         this.screen = screen;
         this.memory = memory;
         this.v = new short[16];
+        //this.delayTimer = 100;
     }
 
     /**
