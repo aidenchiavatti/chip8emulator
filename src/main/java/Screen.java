@@ -1,3 +1,6 @@
+import javax.swing.*;
+import java.awt.*;
+
 /**
  * Screen component, composed of 64x32 bit array
  * @author Aiden Chiavatti
@@ -6,9 +9,11 @@
 public class Screen {
 
     private boolean[][] values;
+    private JPanel[][] panels;
 
     public Screen() {
         this.values = new boolean[64][32];
+        this.panels = new JPanel[64][32];
     }
 
     /**
@@ -36,6 +41,12 @@ public class Screen {
      */
     public void drawPixel(int x, int y, boolean value) {
         this.values[x][y] = value;
+        if(value) {
+            panels[x][y].setBackground(Color.WHITE);
+        }
+        else {
+            panels[x][y].setBackground(Color.BLACK);
+        }
     }
 
     /**
@@ -66,5 +77,21 @@ public class Screen {
             }
             System.out.println();
         }
+    }
+
+    public void init(JFrame frame) {
+        GridLayout gridLayout = new GridLayout(32, 64);
+
+        for (int i = 0; i < 32; i++) {
+            for (int j = 0; j < 64; j++) {
+                JPanel panel = new JPanel();
+                panel.setBackground(Color.BLACK);
+                frame.add(panel);
+                panels[j][i] = panel;
+            }
+        }
+        frame.setLayout(gridLayout);
+        frame.setSize(640, 320);
+        frame.setVisible(true);
     }
 }
