@@ -60,11 +60,23 @@ public class Screen {
         for(int i = 7; i >= 0; i--) {
             if (x + i < 64) {
                 int bit = rowData & 1;
-                if(this.values[x][y] && bit == 0) {
+                int oldBit = this.values[x + i][y] ? 1 : 0;
+                int newValue = oldBit ^ bit;
+                if(newValue == 0 && oldBit == 1) {
                     pixelWasTurnedOff = true;
                 }
-                drawPixel(x + i, y, bit == 1);
+                drawPixel(x + i, y, newValue == 1);
             }
+//            else {
+//                int wrappedX = (x + i) - 64;
+//                int bit = rowData & 1;
+//                int oldBit = this.values[x][y] ? 1 : 0;
+//                int newValue = oldBit ^ bit;
+//                if(newValue == 0 && oldBit == 1) {
+//                    pixelWasTurnedOff = true;
+//                }
+//                drawPixel(wrappedX, y, newValue == 1);
+//            }
             rowData >>= 1;
         }
         return pixelWasTurnedOff;
