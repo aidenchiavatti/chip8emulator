@@ -57,6 +57,10 @@ public class Memory {
         }
     }
 
+    public int spriteLocation(int n) {
+        return 0;
+    }
+
     private void initSprites() {
         //init 0
         memory[0] = 0x60;

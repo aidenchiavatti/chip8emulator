@@ -5,6 +5,8 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Random;
+
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -278,5 +280,10 @@ public class CpuTest {
 
         cpu.executeOpcode(0xf107);
         assertEquals(0x10, cpu.getV(0));
+    }
+
+    @Test
+    public void testRandAnd() {
+        // TODO: is there a good way to test this?
     }
 }

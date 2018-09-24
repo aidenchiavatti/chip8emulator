@@ -1,6 +1,8 @@
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.swing.*;
+
 import static org.junit.Assert.*;
 
 public class ScreenTest {
@@ -10,6 +12,7 @@ public class ScreenTest {
     @Before
     public void setup() {
         screen = new Screen();
+        screen.init(new JFrame()); // TODO: fix this
     }
 
     @Test
