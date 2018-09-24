@@ -50,7 +50,7 @@ public class Screen {
     }
 
     /**
-     * draws a row of 8 bits at (x, y)
+     * draws a row of 8 bits at (x, y). XOR row data with current screen contents
      * @param x coordinate
      * @param y coordinate
      * @param rowData 8-bit encoded data

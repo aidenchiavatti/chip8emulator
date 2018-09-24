@@ -45,9 +45,9 @@ public class ScreenTest {
         assertFalse(screen.getPixel(7, 0));
         assertFalse(pixelTurnedOff);
 
-        pixelTurnedOff = screen.drawRow(0, 0, (short)0x4F);
+        pixelTurnedOff = screen.drawRow(0, 0, (short)0x8F);
         assertFalse(screen.getPixel(0, 0));
-        assertTrue(screen.getPixel(1, 0));
+        assertFalse(screen.getPixel(1, 0));
         assertFalse(screen.getPixel(2, 0));
         assertFalse(screen.getPixel(3, 0));
         assertTrue(screen.getPixel(4, 0));
